@@ -28,8 +28,8 @@ function visitImportDeclaration(traverse, node, path, state) {
     case "default":
       specifier = node.specifiers[0];
       assert(specifier, "default import without specifier: " + node);
-      name = specifier.id.name;
-      utils.append('var ' + name + ' = require(' + node.source.raw + ').' + name + ';', state);
+      name = specifier.name ? specifier.name.name : specifier.id.name;
+      utils.append('var ' + name + ' = require(' + node.source.raw + ');', state);
       break;
 
     // import {name, one as other} from "module"
