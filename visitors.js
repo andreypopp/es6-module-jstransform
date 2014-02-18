@@ -1,3 +1,5 @@
+'use strict';
+
 var assert  = require('assert');
 var Syntax  = require('esprima-fb').Syntax;
 var utils   = require('jstransform/src/utils');
@@ -12,6 +14,7 @@ var utils   = require('jstransform/src/utils');
  *    import { name, one as other } from "module"
  */
 function visitImportDeclaration(traverse, node, path, state) {
+  var specifier, name;
   utils.catchup(node.range[0], state);
 
   switch (node.kind) {
@@ -23,9 +26,9 @@ function visitImportDeclaration(traverse, node, path, state) {
 
     // import name from "module"
     case "default":
-      var specifier = node.specifiers[0];
+      specifier = node.specifiers[0];
       assert(specifier, "default import without specifier: " + node);
-      var name = specifier.id.name;
+      name = specifier.id.name;
       utils.append('var ' + name + ' = require(' + node.source.raw + ').' + name + ';', state);
       break;
 
@@ -35,8 +38,8 @@ function visitImportDeclaration(traverse, node, path, state) {
       utils.append('var ' + modID + ' = require(' + node.source.raw + ');\n', state);
 
       for (var i = 0, len = node.specifiers.length; i < len; i++) {
-        var specifier = node.specifiers[i];
-        var name = specifier.name ? specifier.name.name : specifier.id.name;
+        specifier = node.specifiers[i];
+        name = specifier.name ? specifier.name.name : specifier.id.name;
         utils.append('var ' + name + ' = ' + modID + '.' + specifier.id.name + ';', state);
         if (i !== len - 1) {
           utils.append('\n', state);
@@ -67,13 +70,14 @@ visitImportDeclaration.test = function(node, path, state) {
  *    export { name, one as other }
  */
 function visitExportDeclaration(traverse, node, path, state) {
+  var specifier, name, len, i;
   utils.catchup(node.range[0], state);
 
   if (node.declaration) {
 
     // export default = value
     if (Array.isArray(node.declaration)) {
-      var name = node.declaration[0].id.name;
+      name = node.declaration[0].id.name;
       switch (name) {
         case 'default':
           utils.append('module.exports = ', state);
@@ -88,18 +92,18 @@ function visitExportDeclaration(traverse, node, path, state) {
       switch (node.declaration.type) {
         // export var name = value
         case Syntax.VariableDeclaration:
-          var name = node.declaration.declarations[0].id.name;
+          name = node.declaration.declarations[0].id.name;
           utils.append('var ' + name + ' = module.exports.' + name + ' = ', state);
           utils.move(node.declaration.declarations[0].init.range[0], state);
           break;
         case Syntax.FunctionDeclaration:
-          var name = node.declaration.id.name;
+          name = node.declaration.id.name;
           utils.move(node.declaration.range[0], state);
           utils.catchup(node.declaration.range[1], state);
           utils.append('\nmodule.exports.' + name + ' = ' + name + ';', state);
           break;
         case Syntax.ClassDeclaration:
-          var name = node.declaration.id.name;
+          name = node.declaration.id.name;
           utils.move(node.declaration.range[0], state);
           traverse(node.declaration, path, state);
           utils.append('module.exports.' + name + ' = ' + name + ';', state);
@@ -126,9 +130,9 @@ function visitExportDeclaration(traverse, node, path, state) {
 
     // export {name, one as other} from "module"
     } else {
-      for (var i = 0, len = node.specifiers.length; i < len; i++) {
-        var specifier = node.specifiers[i];
-        var name = specifier.name ? specifier.name.name : specifier.id.name;
+      for (i = 0, len = node.specifiers.length; i < len; i++) {
+        specifier = node.specifiers[i];
+        name = specifier.name ? specifier.name.name : specifier.id.name;
         utils.append(
           'module.exports.' + name + ' = ' + modID +
           '.' + specifier.id.name + ';',
@@ -144,9 +148,9 @@ function visitExportDeclaration(traverse, node, path, state) {
   } else if (node.specifiers) {
 
     // export { name, one as other }
-    for (var i = 0, len = node.specifiers.length; i < len; i++) {
-      var specifier = node.specifiers[i];
-      var name = specifier.name ? specifier.name.name : specifier.id.name;
+    for (i = 0, len = node.specifiers.length; i < len; i++) {
+      specifier = node.specifiers[i];
+      name = specifier.name ? specifier.name.name : specifier.id.name;
       utils.append('module.exports.' + name + ' = ' + specifier.id.name + ';', state);
       if (i !== len - 1) {
         utils.append('\n', state);
