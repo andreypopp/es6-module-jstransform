@@ -1,0 +1,13 @@
+import "./mod.js";
+import mod from "./mod.js";
+import {x} from "./mod.js";
+import {x, y} from "./mod.js";
+import {x as name, z as wow} from "bootstrap";
+export default = 12;
+export var x = 13;
+export { x };
+export { x as name, z as wow };
+export * from "./mod.js";
+export {x} from "./mod.js";
+export {x as name, z as wow } from "./mod.js";
+module x from "./mod.js";

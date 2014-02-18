@@ -1,0 +1,35 @@
+{
+  "name": "es6-modules-transform",
+  "version": "0.0.0",
+  "description": "jstranform for es6 modules syntax",
+  "main": "index.js",
+  "dependencies": {
+    "esprima-fb": "~3001.1.0-dev-harmony-fb",
+    "jstransform": "~3.0.0"
+  },
+  "devDependencies": {
+    "semver": "~2.2.1",
+    "mocha": "~1.17.1",
+    "jshint": "~2.4.3"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andreypopp/es6-modules-transform"
+  },
+  "keywords": [
+    "es6",
+    "syntax",
+    "modules",
+    "es6-modules",
+    "jstransform"
+  ],
+  "author": "Andrey Popp <8mayday@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreypopp/es6-modules-transform/issues"
+  },
+  "homepage": "https://github.com/andreypopp/es6-modules-transform"
+}
