@@ -9,4 +9,5 @@ function transform(code, options, visitorList) {
 }
 
 module.exports = transform;
+module.exports.visitorList = visitors.visitorList;
 module.exports.__resetModuleState = visitors.__resetModuleState;
