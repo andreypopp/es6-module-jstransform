@@ -3,8 +3,9 @@
 var jstransform = require('jstransform');
 var visitors    = require('./visitors');
 
-function transform(code) {
-  return jstransform.transform(visitors.visitorList, code).code;
+function transform(code, options, visitorList) {
+  visitorList = visitors.visitorList.concat(visitorList || []);
+  return jstransform.transform(visitorList, code).code;
 }
 
 module.exports = transform;

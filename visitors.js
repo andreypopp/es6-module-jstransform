@@ -63,7 +63,7 @@ visitImportDeclaration.test = function(node, path, state) {
  * Examples:
  *
  *    export default = value
- *    export var name = value
+ *    export DECLARATION
  *    export { name, one as other }
  */
 function visitExportDeclaration(traverse, node, path, state) {
@@ -83,11 +83,30 @@ function visitExportDeclaration(traverse, node, path, state) {
       }
       utils.move(node.declaration[0].init.range[0], state);
 
-    // export var name = value
+    // export DECLARATION
     } else {
-      var name = node.declaration.declarations[0].id.name;
-      utils.append('var ' + name + ' = module.exports.' + name + ' = ', state);
-      utils.move(node.declaration.declarations[0].init.range[0], state);
+      switch (node.declaration.type) {
+        // export var name = value
+        case Syntax.VariableDeclaration:
+          var name = node.declaration.declarations[0].id.name;
+          utils.append('var ' + name + ' = module.exports.' + name + ' = ', state);
+          utils.move(node.declaration.declarations[0].init.range[0], state);
+          break;
+        case Syntax.FunctionDeclaration:
+          var name = node.declaration.id.name;
+          utils.move(node.declaration.range[0], state);
+          utils.catchup(node.declaration.range[1], state);
+          utils.append('\nmodule.exports.' + name + ' = ' + name + ';', state);
+          break;
+        case Syntax.ClassDeclaration:
+          var name = node.declaration.id.name;
+          utils.move(node.declaration.range[0], state);
+          traverse(node.declaration, path, state);
+          utils.append('module.exports.' + name + ' = ' + name + ';', state);
+          break;
+        default:
+          assert(false, "unknown declaration: " + node.declaration.type);
+      }
     }
 
   } else if (node.source) {
