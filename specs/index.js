@@ -4,14 +4,24 @@ var assert        = require('assert');
 var baseTransform = require('../index');
 var classVisitors = require('jstransform/visitors/es6-class-visitors').visitorList;
 
-function transform(code) {
-  return baseTransform(code, undefined, classVisitors);
+function transform(code, options) {
+  return baseTransform(code, options, classVisitors);
 }
 
 describe('es6-module-jstransform', function() {
 
   beforeEach(function() {
     baseTransform.__resetModuleState();
+  });
+
+  it('generates sourceMap', function() {
+    var result = transform('export * from "jquery"', {
+      sourceMap: true,
+      filename: 'in.js'
+    });
+    assert.ok(result.code);
+    assert.ok(result.sourceMap);
+    assert.ok(result.sourceMapFilename);
   });
 
   fs.readdirSync(path.join(__dirname, 'cases')).forEach(function(p) {
@@ -24,7 +34,7 @@ describe('es6-module-jstransform', function() {
 
       var code = fs.readFileSync(p, 'utf8');
       var result = fs.readFileSync(p.replace(/\.js$/, '.result.js'), 'utf8');
-      assert.equal(result.trim(), transform(code).trim());
+      assert.equal(result.trim(), transform(code).code.trim());
     });
   });
 });
