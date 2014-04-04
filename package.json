@@ -1,6 +1,6 @@
 {
   "name": "es6-module-jstransform",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "jstranform for es6 modules syntax",
   "main": "index.js",
   "dependencies": {
