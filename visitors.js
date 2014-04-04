@@ -80,12 +80,18 @@ function visitExportDeclaration(traverse, node, path, state) {
       name = node.declaration[0].id.name;
       switch (name) {
         case 'default':
-          utils.append('module.exports = ', state);
+          utils.append('module.exports =', state);
           break;
         default:
           utils.append('module.exports.' + name + ' = ', state);
       }
-      utils.move(node.declaration[0].init.range[0], state);
+
+      if (node.declaration[0].init) {
+        // -1 compensates for a additiona space after '=' token
+        utils.move(node.declaration[0].init.range[0] - 1, state);
+      } else {
+        utils.move(node.range[1], state);
+      }
 
     // export DECLARATION
     } else {
