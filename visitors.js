@@ -66,6 +66,7 @@ visitImportDeclaration.test = function(node, path, state) {
  * Examples:
  *
  *    export default = value
+ *    export default;
  *    export DECLARATION
  *    export { name, one as other }
  */
@@ -87,7 +88,7 @@ function visitExportDeclaration(traverse, node, path, state) {
       }
 
       if (node.declaration[0].init) {
-        // -1 compensates for a additiona space after '=' token
+        // -1 compensates for an additional space after '=' token
         utils.move(node.declaration[0].init.range[0] - 1, state);
       } else {
         utils.move(node.range[1], state);
