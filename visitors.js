@@ -122,12 +122,15 @@ function visitExportDeclaration(traverse, node, path, state) {
 
   } else if (node.source) {
 
-    var modID = genID('mod');
-    utils.append('var ' + modID + ' = require(' + node.source.raw + ');\n', state);
+    var modID;
 
     // export * from "module"
     if (node.specifiers.length === 1 &&
         node.specifiers[0].type === Syntax.ExportBatchSpecifier) {
+
+      modID = genID('mod');
+      utils.append('var ' + modID + ' = require(' + node.source.raw + ');', state);
+
       var keyID = genID('key');
       utils.append(
         'for (var ' + keyID + ' in ' + modID + ') ' +
@@ -135,21 +138,32 @@ function visitExportDeclaration(traverse, node, path, state) {
         state
       );
 
+      utils.move(node.range[1], state);
+
     // export {name, one as other} from "module"
     } else {
+
+      if (node.specifiers.length === 1) {
+        modID = 'require(' + node.source.raw + ')';
+      } else {
+        modID = genID('mod');
+        utils.append('var ' + modID + ' = require(' + node.source.raw + ');', state);
+      }
+
       for (i = 0, len = node.specifiers.length; i < len; i++) {
         specifier = node.specifiers[i];
+        utils.catchupNewlines(specifier.range[0], state);
         name = specifier.name ? specifier.name.name : specifier.id.name;
         utils.append(
           'module.exports.' + name + ' = ' + modID +
           '.' + specifier.id.name + ';',
           state
         );
-        if (i !== len - 1) {
-          utils.append('\n', state);
-        }
+        utils.move(specifier.id.range[1], state);
       }
     }
+
+    utils.catchupNewlines(node.range[1], state);
     utils.move(node.range[1], state);
 
   } else if (node.specifiers) {
@@ -157,12 +171,12 @@ function visitExportDeclaration(traverse, node, path, state) {
     // export { name, one as other }
     for (i = 0, len = node.specifiers.length; i < len; i++) {
       specifier = node.specifiers[i];
+      utils.catchupNewlines(specifier.range[0], state);
       name = specifier.name ? specifier.name.name : specifier.id.name;
       utils.append('module.exports.' + name + ' = ' + specifier.id.name + ';', state);
-      if (i !== len - 1) {
-        utils.append('\n', state);
-      }
     }
+
+    utils.catchupNewlines(node.range[1], state);
     utils.move(node.range[1], state);
 
   } else {
