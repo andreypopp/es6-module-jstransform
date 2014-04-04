@@ -34,16 +34,20 @@ function visitImportDeclaration(traverse, node, path, state) {
 
     // import {name, one as other} from "module"
     case "named":
-      var modID = genID('mod');
-      utils.append('var ' + modID + ' = require(' + node.source.raw + ');\n', state);
+      var modID;
+
+      if (node.specifiers.length === 1) {
+        modID = 'require(' + node.source.raw + ')';
+      } else {
+        modID = genID('mod');
+        utils.append('var ' + modID + ' = require(' + node.source.raw + ');', state);
+      }
 
       for (var i = 0, len = node.specifiers.length; i < len; i++) {
         specifier = node.specifiers[i];
+        utils.catchupNewlines(specifier.range[0], state);
         name = specifier.name ? specifier.name.name : specifier.id.name;
         utils.append('var ' + name + ' = ' + modID + '.' + specifier.id.name + ';', state);
-        if (i !== len - 1) {
-          utils.append('\n', state);
-        }
       }
 
       break;
@@ -52,6 +56,7 @@ function visitImportDeclaration(traverse, node, path, state) {
       assert(false, "don't know how to transform: " + node.kind);
   }
 
+  utils.catchupNewlines(node.range[1], state);
   utils.move(node.range[1], state);
   return false;
 }
@@ -107,7 +112,7 @@ function visitExportDeclaration(traverse, node, path, state) {
           name = node.declaration.id.name;
           utils.move(node.declaration.range[0], state);
           utils.catchup(node.declaration.range[1], state);
-          utils.append('\nmodule.exports.' + name + ' = ' + name + ';', state);
+          utils.append(' module.exports.' + name + ' = ' + name + ';', state);
           break;
         case Syntax.ClassDeclaration:
           name = node.declaration.id.name;

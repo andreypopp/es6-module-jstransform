@@ -2,8 +2,7 @@ var x = module.exports.x = 13;
 
 function x() {
   return 13;
-}
-module.exports.x = x;
+} module.exports.x = x;
 
 function A(){"use strict";}
   A.prototype.foo=function() {"use strict";};
