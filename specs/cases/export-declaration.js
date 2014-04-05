@@ -13,3 +13,7 @@ export function x() {
     foo() {}
   }
 }
+
+export var x = 11, y = 12;
+
+export var X = class { render() {} }

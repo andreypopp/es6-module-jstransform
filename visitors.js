@@ -111,9 +111,12 @@ function visitExportDeclaration(traverse, node, path, state) {
       switch (node.declaration.type) {
         // export var name = value
         case Syntax.VariableDeclaration:
-          name = node.declaration.declarations[0].id.name;
-          utils.append('var ' + name + ' = module.exports.' + name + ' = ', state);
-          utils.move(node.declaration.declarations[0].init.range[0], state);
+          utils.move(node.declaration.range[0], state);
+          node.declaration.declarations.forEach(function(declaration) {
+            utils.catchup(declaration.id.range[1], state);
+            utils.append(' = module.exports.' + declaration.id.name, state);
+            traverse(declaration.init, path, state);
+          });
           break;
         case Syntax.FunctionDeclaration:
           name = node.declaration.id.name;
