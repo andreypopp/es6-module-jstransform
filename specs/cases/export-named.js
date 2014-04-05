@@ -9,3 +9,12 @@ export {
 };
 
 var should = "be on 11th line";
+
+export x = 11;
+
+export x = class A {
+
+  render() {
+    return 1;
+  }
+}

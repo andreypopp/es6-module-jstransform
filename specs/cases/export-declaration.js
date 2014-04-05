@@ -7,3 +7,9 @@ export function x() {
 export class A {
   foo() {}
 }
+
+export function x() {
+  class A {
+    foo() {}
+  }
+}

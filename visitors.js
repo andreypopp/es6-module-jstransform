@@ -83,6 +83,11 @@ function visitExportDeclaration(traverse, node, path, state) {
 
     // export default = value
     if (Array.isArray(node.declaration)) {
+
+      assert(
+        node.declaration.length === 1,
+        formatError('cannot export more than a single declaration', node));
+
       name = node.declaration[0].id.name;
       switch (name) {
         case 'default':
@@ -95,9 +100,11 @@ function visitExportDeclaration(traverse, node, path, state) {
       if (node.declaration[0].init) {
         // -1 compensates for an additional space after '=' token
         utils.move(node.declaration[0].init.range[0] - 1, state);
+        traverse(node.declaration[0].init, path, state);
       } else {
         utils.move(node.range[1], state);
       }
+
 
     // export DECLARATION
     } else {
@@ -111,7 +118,7 @@ function visitExportDeclaration(traverse, node, path, state) {
         case Syntax.FunctionDeclaration:
           name = node.declaration.id.name;
           utils.move(node.declaration.range[0], state);
-          utils.catchup(node.declaration.range[1], state);
+          traverse(node.declaration, path, state);
           utils.append(' module.exports.' + name + ' = ' + name + ';', state);
           break;
         case Syntax.ClassDeclaration:
@@ -213,6 +220,10 @@ function visitModuleDeclaration(traverse, node, path, state) {
 visitModuleDeclaration.test = function(node, path, state) {
   return node.type === Syntax.ModuleDeclaration;
 };
+
+function formatError(message, node) {
+  return '' + node.loc.start.line + ':' + node.loc.start.column + ' ' + message;
+}
 
 var num = 0;
 

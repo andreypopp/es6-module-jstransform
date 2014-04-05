@@ -7,3 +7,9 @@ function x() {
 function A(){"use strict";}
   A.prototype.foo=function() {"use strict";};
 module.exports.A = A;
+
+function x() {
+  function A(){"use strict";}
+    A.prototype.foo=function() {"use strict";};
+  
+} module.exports.x = x;
